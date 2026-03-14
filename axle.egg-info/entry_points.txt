@@ -1,0 +1,2 @@
+[console_scripts]
+axle = axle.main:app

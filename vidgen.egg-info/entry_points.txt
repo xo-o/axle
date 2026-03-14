@@ -1,0 +1,2 @@
+[console_scripts]
+vidgen_py = vidgen.main:app

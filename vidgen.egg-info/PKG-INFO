@@ -1,0 +1,896 @@
+Metadata-Version: 2.4
+Name: vidgen
+Version: 0.0.1
+Summary: A CLI for all video tasks
+Author: Dany Boza
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: typer>=0.12.0
+Requires-Dist: libsql>=0.0.1
+Requires-Dist: google-genai>=1.0.0
+Requires-Dist: deepgram-sdk>=3.0.0
+Requires-Dist: boto3>=1.34.0
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: ruff>=0.3.0; extra == "dev"
+
+removideo
+=================
+
+A CLI for all video tasks
+
+
+[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
+[![Version](https://img.shields.io/npm/v/removideo.svg)](https://npmjs.org/package/removideo)
+[![Downloads/week](https://img.shields.io/npm/dw/removideo.svg)](https://npmjs.org/package/removideo)
+
+
+<!-- toc -->
+* [Usage](#usage)
+* [Commands](#commands)
+<!-- tocstop -->
+# Usage
+<!-- usage -->
+```sh-session
+$ npm install -g vidgen
+$ vidgen COMMAND
+running command...
+$ vidgen (--version)
+vidgen/0.0.4 darwin-x64 node-v24.1.0
+$ vidgen --help [COMMAND]
+USAGE
+  $ vidgen COMMAND
+...
+```
+<!-- usagestop -->
+# Commands
+<!-- commands -->
+* [`vidgen db init`](#vidgen-db-init)
+* [`vidgen generate image`](#vidgen-generate-image)
+* [`vidgen generate s2s`](#vidgen-generate-s2s)
+* [`vidgen generate stt`](#vidgen-generate-stt)
+* [`vidgen generate tts`](#vidgen-generate-tts)
+* [`vidgen help [COMMAND]`](#vidgen-help-command)
+* [`vidgen index chunk`](#vidgen-index-chunk)
+* [`vidgen index describe`](#vidgen-index-describe)
+* [`vidgen index embed`](#vidgen-index-embed)
+* [`vidgen index save`](#vidgen-index-save)
+* [`vidgen plugins`](#vidgen-plugins)
+* [`vidgen plugins add PLUGIN`](#vidgen-plugins-add-plugin)
+* [`vidgen plugins:inspect PLUGIN...`](#vidgen-pluginsinspect-plugin)
+* [`vidgen plugins install PLUGIN`](#vidgen-plugins-install-plugin)
+* [`vidgen plugins link PATH`](#vidgen-plugins-link-path)
+* [`vidgen plugins remove [PLUGIN]`](#vidgen-plugins-remove-plugin)
+* [`vidgen plugins reset`](#vidgen-plugins-reset)
+* [`vidgen plugins uninstall [PLUGIN]`](#vidgen-plugins-uninstall-plugin)
+* [`vidgen plugins unlink [PLUGIN]`](#vidgen-plugins-unlink-plugin)
+* [`vidgen plugins update`](#vidgen-plugins-update)
+* [`vidgen project create`](#vidgen-project-create)
+* [`vidgen project delete ID`](#vidgen-project-delete-id)
+* [`vidgen project get ID`](#vidgen-project-get-id)
+* [`vidgen project list`](#vidgen-project-list)
+* [`vidgen project validate`](#vidgen-project-validate)
+* [`vidgen search asset`](#vidgen-search-asset)
+* [`vidgen segment add`](#vidgen-segment-add)
+* [`vidgen segment delete ID`](#vidgen-segment-delete-id)
+* [`vidgen segment list PROJECTID`](#vidgen-segment-list-projectid)
+* [`vidgen segment update ID`](#vidgen-segment-update-id)
+* [`vidgen storage upload`](#vidgen-storage-upload)
+* [`vidgen video caption`](#vidgen-video-caption)
+* [`vidgen video trim`](#vidgen-video-trim)
+* [`vidgen voice clone`](#vidgen-voice-clone)
+
+## `vidgen db init`
+
+Initialize the Turso database schema (projects and segments tables).
+
+```
+USAGE
+  $ vidgen db init
+
+DESCRIPTION
+  Initialize the Turso database schema (projects and segments tables).
+
+EXAMPLES
+  $ vidgen db init
+```
+
+_See code: [src/commands/db/init.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/db/init.ts)_
+
+## `vidgen generate image`
+
+Generate an image using Gemini models.
+
+```
+USAGE
+  $ vidgen generate image -p <value> -o <value> [-m <value>] [-a 1:1|9:16|16:9] [-s <value>]
+
+FLAGS
+  -a, --aspectRatio=<option>  [default: 9:16] Aspect ratio (1:1, 9:16, 16:9)
+                              <options: 1:1|9:16|16:9>
+  -m, --model=<value>         [default: gemini-3.1-flash-image-preview] Gemini model to use
+  -o, --output=<value>        (required) Path (or URL-like filename) to write the generated image
+  -p, --prompt=<value>        (required) The prompt for image generation
+  -s, --segmentId=<value>     Segment ID to update with the image result
+
+DESCRIPTION
+  Generate an image using Gemini models.
+
+EXAMPLES
+  $ vidgen generate image --prompt "A futuristic city" --output city.png
+
+  $ vidgen generate image --prompt "A cute cat" --model "imagen-3" --output cat.png
+```
+
+_See code: [src/commands/generate/image.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/generate/image.ts)_
+
+## `vidgen generate s2s`
+
+Generate a Speech-to-Speech (S2S) voice cloned audio file from a source audio file.
+
+```
+USAGE
+  $ vidgen generate s2s -a <value> -o <value> -v <value>
+
+FLAGS
+  -a, --audio=<value>    (required) Path to the source audio file
+  -o, --output=<value>   (required) Path or filename to write the generated audio file
+  -v, --voiceId=<value>  (required) Voice ID to use for the target voice (ElevenLabs)
+
+DESCRIPTION
+  Generate a Speech-to-Speech (S2S) voice cloned audio file from a source audio file.
+
+EXAMPLES
+  $ vidgen generate s2s --audio ./input.mp3 --voiceId en-US-1 --output ./audio/seg_001.mp3
+```
+
+_See code: [src/commands/generate/s2s.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/generate/s2s.ts)_
+
+## `vidgen generate stt`
+
+Generate a Speech-to-Text (STT) transcript from an audio file using Deepgram. Populates the SpeechToText object in a Segment.
+
+```
+USAGE
+  $ vidgen generate stt -a <value> -o <value> [-l <value>] [-m <value>] [-s <value>]
+
+FLAGS
+  -a, --audio=<value>      (required) URL or local path to the audio file to transcribe
+  -l, --language=<value>   Target language for transcription (e.g. "en"). Omit for auto-detection.
+  -m, --model=<value>      [default: nova-3] Deepgram model to use
+  -o, --output=<value>     (required) Path to write the transcript JSON output
+  -s, --segmentId=<value>  Segment ID to update with the STT result
+
+DESCRIPTION
+  Generate a Speech-to-Text (STT) transcript from an audio file using Deepgram. Populates the SpeechToText object in a
+  Segment.
+
+EXAMPLES
+  $ vidgen generate stt --audio https://storage.example.com/seg_001.mp3 --output ./captions/seg_001.json
+```
+
+_See code: [src/commands/generate/stt.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/generate/stt.ts)_
+
+## `vidgen generate tts`
+
+Generate a Text-to-Speech (TTS) audio file from a script.
+
+```
+USAGE
+  $ vidgen generate tts -o <value> -t <value> -v <value>
+
+FLAGS
+  -o, --output=<value>   (required) Path or filename to write the generated audio file
+  -t, --text=<value>     (required) The script text to convert to speech
+  -v, --voiceId=<value>  (required) Voice ID to use for the TTS provider (ElevenLabs)
+
+DESCRIPTION
+  Generate a Text-to-Speech (TTS) audio file from a script.
+
+EXAMPLES
+  $ vidgen generate tts --text "Blockchain is revolutionizing..." --voiceId en-US-1 --output ./audio/seg_001.mp3
+```
+
+_See code: [src/commands/generate/tts.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/generate/tts.ts)_
+
+## `vidgen help [COMMAND]`
+
+Display help for vidgen.
+
+```
+USAGE
+  $ vidgen help [COMMAND...] [-n]
+
+ARGUMENTS
+  [COMMAND...]  Command to show help for.
+
+FLAGS
+  -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for vidgen.
+```
+
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.37/src/commands/help.ts)_
+
+## `vidgen index chunk`
+
+Slice a video into fixed-duration chunks and extract keyframes for downstream analysis.
+
+```
+USAGE
+  $ vidgen index chunk -o <value> -u <value> [-d <value>]
+
+FLAGS
+  -d, --duration=<value>  [default: 5] Duration in seconds for each chunk
+  -o, --output=<value>    (required) Output directory for chunk files and keyframes
+  -u, --url=<value>       (required) URL or local path to the video file
+
+DESCRIPTION
+  Slice a video into fixed-duration chunks and extract keyframes for downstream analysis.
+
+EXAMPLES
+  $ vidgen index chunk --url ./video.mp4 --duration 5 --output ./chunks
+```
+
+_See code: [src/commands/index/chunk.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/index/chunk.ts)_
+
+## `vidgen index describe`
+
+Use a Vision AI model to generate a text description of an image or video keyframe.
+
+```
+USAGE
+  $ vidgen index describe -i <value> -o <value> [-m <value>]
+
+FLAGS
+  -i, --image=<value>   (required) Path or URL to the image/keyframe to describe
+  -m, --model=<value>   [default: gemini-flash] Vision model to use for description
+  -o, --output=<value>  (required) Path to write the description JSON output
+
+DESCRIPTION
+  Use a Vision AI model to generate a text description of an image or video keyframe.
+
+EXAMPLES
+  $ vidgen index describe --image ./chunks/frame_001.jpg --output ./descriptions/frame_001.json
+```
+
+_See code: [src/commands/index/describe.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/index/describe.ts)_
+
+## `vidgen index embed`
+
+Convert a text description into a vector embedding for semantic search.
+
+```
+USAGE
+  $ vidgen index embed -o <value> -t <value> [-m <value>]
+
+FLAGS
+  -m, --model=<value>   [default: text-embedding-3-small] Embedding model to use
+  -o, --output=<value>  (required) Path to write the embedding JSON output
+  -t, --text=<value>    (required) The text description to embed
+
+DESCRIPTION
+  Convert a text description into a vector embedding for semantic search.
+
+EXAMPLES
+  $ vidgen index embed --text "A bitcoin coin spinning on a blue background" --output ./embeddings/frame_001.json
+```
+
+_See code: [src/commands/index/embed.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/index/embed.ts)_
+
+## `vidgen index save`
+
+Save a video chunk's metadata (timecodes, description, embedding) to the RAG database.
+
+```
+USAGE
+  $ vidgen index save -d <value> -m <value>
+
+FLAGS
+  -d, --db=<value>        (required) Database connection string
+  -m, --metadata=<value>  (required) Path to the metadata JSON file containing chunk info, description, and embedding
+
+DESCRIPTION
+  Save a video chunk's metadata (timecodes, description, embedding) to the RAG database.
+
+EXAMPLES
+  $ vidgen index save --metadata ./chunk_001_meta.json --db postgresql://user:pass@localhost/db
+```
+
+_See code: [src/commands/index/save.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/index/save.ts)_
+
+## `vidgen plugins`
+
+List installed plugins.
+
+```
+USAGE
+  $ vidgen plugins [--json] [--core]
+
+FLAGS
+  --core  Show core plugins.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  List installed plugins.
+
+EXAMPLES
+  $ vidgen plugins
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/index.ts)_
+
+## `vidgen plugins add PLUGIN`
+
+Installs a plugin into vidgen.
+
+```
+USAGE
+  $ vidgen plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
+
+ARGUMENTS
+  PLUGIN...  Plugin to install.
+
+FLAGS
+  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
+  -h, --help     Show CLI help.
+  -s, --silent   Silences npm output.
+  -v, --verbose  Show verbose npm output.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Installs a plugin into vidgen.
+
+  Uses npm to install plugins.
+
+  Installation of a user-installed plugin will override a core plugin.
+
+  Use the VIDGEN_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the VIDGEN_NPM_REGISTRY environment variable to set the npm registry.
+
+ALIASES
+  $ vidgen plugins add
+
+EXAMPLES
+  Install a plugin from npm registry.
+
+    $ vidgen plugins add myplugin
+
+  Install a plugin from a github url.
+
+    $ vidgen plugins add https://github.com/someuser/someplugin
+
+  Install a plugin from a github slug.
+
+    $ vidgen plugins add someuser/someplugin
+```
+
+## `vidgen plugins:inspect PLUGIN...`
+
+Displays installation properties of a plugin.
+
+```
+USAGE
+  $ vidgen plugins inspect PLUGIN...
+
+ARGUMENTS
+  PLUGIN...  [default: .] Plugin to inspect.
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Displays installation properties of a plugin.
+
+EXAMPLES
+  $ vidgen plugins inspect myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/inspect.ts)_
+
+## `vidgen plugins install PLUGIN`
+
+Installs a plugin into vidgen.
+
+```
+USAGE
+  $ vidgen plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
+
+ARGUMENTS
+  PLUGIN...  Plugin to install.
+
+FLAGS
+  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
+  -h, --help     Show CLI help.
+  -s, --silent   Silences npm output.
+  -v, --verbose  Show verbose npm output.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Installs a plugin into vidgen.
+
+  Uses npm to install plugins.
+
+  Installation of a user-installed plugin will override a core plugin.
+
+  Use the VIDGEN_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the VIDGEN_NPM_REGISTRY environment variable to set the npm registry.
+
+ALIASES
+  $ vidgen plugins add
+
+EXAMPLES
+  Install a plugin from npm registry.
+
+    $ vidgen plugins install myplugin
+
+  Install a plugin from a github url.
+
+    $ vidgen plugins install https://github.com/someuser/someplugin
+
+  Install a plugin from a github slug.
+
+    $ vidgen plugins install someuser/someplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/install.ts)_
+
+## `vidgen plugins link PATH`
+
+Links a plugin into the CLI for development.
+
+```
+USAGE
+  $ vidgen plugins link PATH [-h] [--install] [-v]
+
+ARGUMENTS
+  PATH  [default: .] path to plugin
+
+FLAGS
+  -h, --help          Show CLI help.
+  -v, --verbose
+      --[no-]install  Install dependencies after linking the plugin.
+
+DESCRIPTION
+  Links a plugin into the CLI for development.
+
+  Installation of a linked plugin will override a user-installed or core plugin.
+
+  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello'
+  command will override the user-installed or core plugin implementation. This is useful for development work.
+
+
+EXAMPLES
+  $ vidgen plugins link myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/link.ts)_
+
+## `vidgen plugins remove [PLUGIN]`
+
+Removes a plugin from the CLI.
+
+```
+USAGE
+  $ vidgen plugins remove [PLUGIN...] [-h] [-v]
+
+ARGUMENTS
+  [PLUGIN...]  plugin to uninstall
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
+
+ALIASES
+  $ vidgen plugins unlink
+  $ vidgen plugins remove
+
+EXAMPLES
+  $ vidgen plugins remove myplugin
+```
+
+## `vidgen plugins reset`
+
+Remove all user-installed and linked plugins.
+
+```
+USAGE
+  $ vidgen plugins reset [--hard] [--reinstall]
+
+FLAGS
+  --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
+  --reinstall  Reinstall all plugins after uninstalling.
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/reset.ts)_
+
+## `vidgen plugins uninstall [PLUGIN]`
+
+Removes a plugin from the CLI.
+
+```
+USAGE
+  $ vidgen plugins uninstall [PLUGIN...] [-h] [-v]
+
+ARGUMENTS
+  [PLUGIN...]  plugin to uninstall
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
+
+ALIASES
+  $ vidgen plugins unlink
+  $ vidgen plugins remove
+
+EXAMPLES
+  $ vidgen plugins uninstall myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/uninstall.ts)_
+
+## `vidgen plugins unlink [PLUGIN]`
+
+Removes a plugin from the CLI.
+
+```
+USAGE
+  $ vidgen plugins unlink [PLUGIN...] [-h] [-v]
+
+ARGUMENTS
+  [PLUGIN...]  plugin to uninstall
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
+
+ALIASES
+  $ vidgen plugins unlink
+  $ vidgen plugins remove
+
+EXAMPLES
+  $ vidgen plugins unlink myplugin
+```
+
+## `vidgen plugins update`
+
+Update installed plugins.
+
+```
+USAGE
+  $ vidgen plugins update [-h] [-v]
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Update installed plugins.
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.4.58/src/commands/plugins/update.ts)_
+
+## `vidgen project create`
+
+Create a new video project in the Turso database.
+
+```
+USAGE
+  $ vidgen project create -a 1:1|16:9|9:16|11 -t <value> [-d <value>]
+
+FLAGS
+  -a, --aspectRatio=<option>  (required) [default: 9:16] Project aspect ratio
+                              <options: 1:1|16:9|9:16|11>
+  -d, --description=<value>   Optional project description
+  -t, --title=<value>         (required) Project title
+
+DESCRIPTION
+  Create a new video project in the Turso database.
+
+EXAMPLES
+  $ vidgen project create --title "Crypto Explainers" --aspectRatio 9:16
+```
+
+_See code: [src/commands/project/create.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/project/create.ts)_
+
+## `vidgen project delete ID`
+
+Delete a project and all its associated segments from the Turso database.
+
+```
+USAGE
+  $ vidgen project delete ID
+
+ARGUMENTS
+  ID  Project ID to delete
+
+DESCRIPTION
+  Delete a project and all its associated segments from the Turso database.
+
+EXAMPLES
+  $ vidgen project delete <project-id>
+```
+
+_See code: [src/commands/project/delete.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/project/delete.ts)_
+
+## `vidgen project get ID`
+
+Retrieve a full project schema including its segments from the Turso database.
+
+```
+USAGE
+  $ vidgen project get ID
+
+ARGUMENTS
+  ID  Project ID to retrieve
+
+DESCRIPTION
+  Retrieve a full project schema including its segments from the Turso database.
+
+EXAMPLES
+  $ vidgen project get <project-id>
+```
+
+_See code: [src/commands/project/get.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/project/get.ts)_
+
+## `vidgen project list`
+
+List all video projects stored in the Turso database.
+
+```
+USAGE
+  $ vidgen project list
+
+DESCRIPTION
+  List all video projects stored in the Turso database.
+
+EXAMPLES
+  $ vidgen project list
+```
+
+_See code: [src/commands/project/list.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/project/list.ts)_
+
+## `vidgen project validate`
+
+Validate a Schema JSON file against the TypeScript Schema interface structure before saving to a database.
+
+```
+USAGE
+  $ vidgen project validate -s <value> [--strict]
+
+FLAGS
+  -s, --schema=<value>  (required) Path to the Schema JSON file to validate
+      --strict          Fail on missing optional fields in addition to required field validation
+
+DESCRIPTION
+  Validate a Schema JSON file against the TypeScript Schema interface structure before saving to a database.
+
+EXAMPLES
+  $ vidgen project validate --schema ./schema.json
+
+  $ vidgen project validate --schema ./schema.json --strict
+```
+
+_See code: [src/commands/project/validate.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/project/validate.ts)_
+
+## `vidgen search asset`
+
+Semantically search the video RAG database for the best matching clip for a given query. Returns matching VisualBroll / Clip metadata.
+
+```
+USAGE
+  $ vidgen search asset -d <value> -q <value> [-l <value>] [-t video|image]
+
+FLAGS
+  -d, --db=<value>     (required) Database connection string
+  -l, --limit=<value>  [default: 1] Maximum number of results to return
+  -q, --query=<value>  (required) The natural language search query (e.g. comes from a Segment's searchQuery field)
+  -t, --type=<option>  Filter results by asset type
+                       <options: video|image>
+
+DESCRIPTION
+  Semantically search the video RAG database for the best matching clip for a given query. Returns matching VisualBroll
+  / Clip metadata.
+
+EXAMPLES
+  $ vidgen search asset --query "bitcoin coin spinning on blue background" --db postgresql://user:pass@localhost/db --limit 3
+```
+
+_See code: [src/commands/search/asset.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/search/asset.ts)_
+
+## `vidgen segment add`
+
+Add a new segment to a project. Data should be a JSON string matching the Segment interface.
+
+```
+USAGE
+  $ vidgen segment add -d <value> -p <value> [-n <value>]
+
+FLAGS
+  -d, --data=<value>       (required) JSON string of the segment data
+  -n, --order=<value>      Order index for the segment
+  -p, --projectId=<value>  (required) Project ID to attach the segment to
+
+DESCRIPTION
+  Add a new segment to a project. Data should be a JSON string matching the Segment interface.
+
+EXAMPLES
+  $ vidgen segment add --projectId <project-id> --data '{"title":"Scene 1","text":"Hello"}' --order 0
+```
+
+_See code: [src/commands/segment/add.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/segment/add.ts)_
+
+## `vidgen segment delete ID`
+
+Delete a specific segment from the Turso database.
+
+```
+USAGE
+  $ vidgen segment delete ID
+
+ARGUMENTS
+  ID  Segment ID to delete
+
+DESCRIPTION
+  Delete a specific segment from the Turso database.
+
+EXAMPLES
+  $ vidgen segment delete <segment-id>
+```
+
+_See code: [src/commands/segment/delete.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/segment/delete.ts)_
+
+## `vidgen segment list PROJECTID`
+
+List all segments associated with a specific project.
+
+```
+USAGE
+  $ vidgen segment list PROJECTID
+
+ARGUMENTS
+  PROJECTID  Project ID to list segments for
+
+DESCRIPTION
+  List all segments associated with a specific project.
+
+EXAMPLES
+  $ vidgen segment list <project-id>
+```
+
+_See code: [src/commands/segment/list.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/segment/list.ts)_
+
+## `vidgen segment update ID`
+
+Update an existing segment's data.
+
+```
+USAGE
+  $ vidgen segment update ID -d <value> [-n <value>]
+
+ARGUMENTS
+  ID  Segment ID to update
+
+FLAGS
+  -d, --data=<value>   (required) JSON string of the segment data to merge/update
+  -n, --order=<value>  New order index for the segment
+
+DESCRIPTION
+  Update an existing segment's data.
+
+EXAMPLES
+  $ vidgen segment update <segment-id> --data '{"title":"New Title"}'
+```
+
+_See code: [src/commands/segment/update.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/segment/update.ts)_
+
+## `vidgen storage upload`
+
+Upload a file to R2 storage.
+
+```
+USAGE
+  $ vidgen storage upload -f <value> [-n <value>]
+
+FLAGS
+  -f, --file=<value>  (required) Local path to the file to upload
+  -n, --name=<value>  Remote name for the file (defaults to local filename)
+
+DESCRIPTION
+  Upload a file to R2 storage.
+
+EXAMPLES
+  $ vidgen storage upload --file ./video.mp4 --name final_video.mp4
+```
+
+_See code: [src/commands/storage/upload.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/storage/upload.ts)_
+
+## `vidgen video caption`
+
+Generate SRT captions from a JSON transcript and optionally embed them into a video.
+
+```
+USAGE
+  $ vidgen video caption -o <value> -t <value> [-b] [-v <value>]
+
+FLAGS
+  -b, --burnIn
+  -o, --output=<value>      (required)
+  -t, --transcript=<value>  (required)
+  -v, --video=<value>
+
+DESCRIPTION
+  Generate SRT captions from a JSON transcript and optionally embed them into a video.
+```
+
+_See code: [src/commands/video/caption.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/video/caption.ts)_
+
+## `vidgen video trim`
+
+Precisely trim a video file using start and end timestamps.
+
+```
+USAGE
+  $ vidgen video trim -i <value> -o <value> -s <value> [-d <value>] [-e <value>]
+
+FLAGS
+  -d, --duration=<value>  Duration to trim
+  -e, --end=<value>       End timestamp
+  -i, --input=<value>     (required) Input video file path
+  -o, --output=<value>    (required) Output video file path
+  -s, --start=<value>     (required) Start timestamp
+
+DESCRIPTION
+  Precisely trim a video file using start and end timestamps.
+
+EXAMPLES
+  $ vidgen video trim --input input.mp4 --start 00:00:10 --end 00:00:20 --output trimmed.mp4
+```
+
+_See code: [src/commands/video/trim.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/video/trim.ts)_
+
+## `vidgen voice clone`
+
+Clone a voice using an audio sample file via ElevenLabs.
+
+```
+USAGE
+  $ vidgen voice clone -n <value> -a <value> [-d <value>]
+
+FLAGS
+  -a, --audio=<value>        (required) Path to the source audio file to clone from
+  -d, --description=<value>  Optional description for the cloned voice
+  -n, --name=<value>         (required) The name of the new cloned voice
+
+DESCRIPTION
+  Clone a voice using an audio sample file via ElevenLabs.
+
+EXAMPLES
+  $ vidgen voice clone --name "My Cloned Voice" --audio ./sample.mp3 --description "A customized voice clone"
+```
+
+_See code: [src/commands/voice/clone.ts](https://github.com/xo-o/vidgen/blob/v0.0.4/src/commands/voice/clone.ts)_
+<!-- commandsstop -->
